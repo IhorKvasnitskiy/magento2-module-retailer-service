@@ -16,7 +16,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Smile\RetailerService\Api\ServiceRepositoryInterface;
 use Smile\RetailerService\Api\Data\ServiceInterface;
 
-class StoreLocatorBlockSearchPlugin
+class StoreLocatorBlockViewMapPlugin
 {
     /**
      * @var SearchCriteriaBuilder
@@ -36,8 +36,7 @@ class StoreLocatorBlockSearchPlugin
      */
     public function __construct(
         ServiceRepositoryInterface $serviceRepositoryInterface,
-        SearchCriteriaBuilder $searchCriteriaBuilder,
-        $data = []
+        SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->serviceRepositoryInterface = $serviceRepositoryInterface;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -49,25 +48,24 @@ class StoreLocatorBlockSearchPlugin
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter).
      *
-     * @param \Smile\StoreLocator\Block\Search  $block  The block search
+     * @param \Smile\StoreLocator\Block\View\Map  $block  The block search
      * @param $result                           $result List of markers
      * @return array
      */
-    public function afterGetMarkers(\Smile\StoreLocator\Block\Search $block, $result)
+    public function afterGetMarkerData(\Smile\StoreLocator\Block\View\Map $block, $result)
     {
         if (!empty($result)) {
-            foreach ($result as $key => $marker) {
-                $servicesList = $this->getServiceListByRetailerId($marker['id']);
-                $imageUrlService = $block->getImageUrl().'/retailerservice/';
-                foreach ($servicesList as $services) {
-                    $image = $services->getMediaPath() ? $imageUrlService.$services->getMediaPath() : false;
-                    $result[$key]['service'][] =
-                        [
-                            'media'         => $image,
-                            'title'         => $services->getName(),
-                            'description'   => $services->getDescription(),
-                        ];
-                }
+            $l = $result[0]['id'];
+            $servicesList = $this->getServiceListByRetailerId($l);
+            $imageUrlService = $block->getImageUrl().'/retailerservice/';
+            foreach ($servicesList as $services) {
+                $image = $services->getMediaPath() ? $imageUrlService.$services->getMediaPath() : false;
+                $result[0]['service'][] =
+                    [
+                        'media'         => $image,
+                        'title'         => $services->getName(),
+                        'description'   => $services->getDescription(),
+                    ];
             }
         }
 
